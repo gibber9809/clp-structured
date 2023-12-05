@@ -143,7 +143,7 @@ void JsonParser::parse_line(ondemand::value line, int32_t parent_node_id, std::s
             case ondemand::json_type::string: {
                 std::string value = std::string(std::string_view(line.get_string()));
 
-                if (matches_timestamp || (object_stack.size() == 1 && cur_key == "timestamp")) {
+                if (matches_timestamp || (object_stack.size() == 1 && cur_key == "timestamp" && value != "null")) {
                     double ret_double;
                     if (StringUtils::convert_string_to_double(value, ret_double)) {
                         node_id = m_schema_tree->add_node(

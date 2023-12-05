@@ -1,5 +1,7 @@
 #include "TimestampDictionaryWriter.hpp"
 
+#include <iostream>
+
 #include "Utils.hpp"
 
 namespace clp_structured {
@@ -122,6 +124,7 @@ epochtime_t TimestampDictionaryWriter::ingest_entry(
     m_local_column_to_range[key].ingest_timestamp(ret);
 
     if (pattern == nullptr) {
+	std::cout << timestamp << " " << key << std::endl;
         throw OperationFailed(ErrorCodeFailure, __FILE__, __LINE__);
     }
 
