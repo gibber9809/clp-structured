@@ -143,7 +143,7 @@ void JsonParser::parse_line(ondemand::value line, int32_t parent_node_id, std::s
             case ondemand::json_type::string: {
                 std::string value = std::string(std::string_view(line.get_string()));
 
-                if (matches_timestamp) {
+                if (matches_timestamp || (object_stack.size() == 1 && cur_key == "timestamp")) {
                     double ret_double;
                     if (StringUtils::convert_string_to_double(value, ret_double)) {
                         node_id = m_schema_tree->add_node(
@@ -160,7 +160,9 @@ void JsonParser::parse_line(ondemand::value line, int32_t parent_node_id, std::s
                         );
                         m_current_parsed_message.add_value(node_id, value);
                     }
-                    matches_timestamp = may_match_timestamp = can_match_timestamp = false;
+                    if (matches_timestamp) {
+                        matches_timestamp = may_match_timestamp = can_match_timestamp = false;
+                    }
                 } else if (value.find(' ') != std::string::npos) {
                     node_id = m_schema_tree
                                       ->add_node(node_id_stack.top(), NodeType::CLPSTRING, cur_key);

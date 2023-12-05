@@ -212,6 +212,8 @@ void TimestampPattern::init() {
     vector<TimestampPattern> patterns;
     // E.g. 2022-04-06T03:33:23.476Z ...47, ...4 ...()
     patterns.emplace_back(0, "%Y-%m-%dT%H:%M:%S.%TZ");
+    // E.g. 2022-04-06T03:33:23.476999321Z ...4769Z etc.
+    patterns.emplace_back(0, "%Y-%m-%dT%H:%M:%S.%NZ");
     // E.g. 2022-04-06T03:33:23Z
     patterns.emplace_back(0, "%Y-%m-%dT%H:%M:%SZ");
     // E.g. 2015-01-31T15:50:45.392
@@ -776,6 +778,28 @@ bool TimestampPattern::parse_timestamp(
                     break;
                 }
 
+                case 'N': {  // nanosecond no trailing zero
+                    constexpr int cMaxFieldLength = 9;
+
+                    int value;
+                    size_t new_line_ix = line_ix + cMaxFieldLength;
+                    if (!convert_string_to_number_notz(
+                                line,
+                                cMaxFieldLength,
+                                line_ix,
+                                new_line_ix,
+                                value
+                        )
+                        || value < 0 || value > 999'999'999)
+                    {
+                        return false;
+                    }
+                    millisecond = value / (1000 * 1000);
+                    line_ix = new_line_ix;
+
+                    break;
+                }
+
                 default:
                     return false;
             }
@@ -984,6 +1008,10 @@ void TimestampPattern::insert_formatted_timestamp(epochtime_t timestamp, string&
                     break;
 
                 case 'T':  // Zero-padded millisecond no trailing 0
+                    append_padded_value_notz(millisecond, '0', 3, new_msg);
+                    break;
+
+                case 'N':  // nanosecond no trailing zero (has been truncated to ms)
                     append_padded_value_notz(millisecond, '0', 3, new_msg);
                     break;
 

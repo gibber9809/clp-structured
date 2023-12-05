@@ -45,6 +45,7 @@ namespace clp_structured {
  * - S  2-digit 0-padded second (00-60) (60 to account for leap seconds)
  * - 3  0-padded millisecond (000-999)
  * - T  0-padded millisecond no trailing 0 (000)-999) e.g. (000), 9(00), 99(0), 099
+ * - N  nanosecond to trailing zero truncated to millisecond
  */
 class TimestampPattern {
 public:
